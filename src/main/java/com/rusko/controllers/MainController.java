@@ -8,6 +8,7 @@ import com.rusko.service.SecurityService;
 import com.rusko.service.UserService;
 import com.rusko.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -26,6 +27,9 @@ public class MainController {
 
   @Autowired
   private RoleRepository roleRepository;
+
+  @Autowired
+  private BCryptPasswordEncoder bCryptPasswordEncoder;
 
   @Autowired
   private UserService userService;
@@ -68,6 +72,8 @@ public class MainController {
     User user = userForm.convert();
     final Role userRole = roleRepository.findByRole("USER");
     user.setRoles(Set.of(userRole));
+
+    user.setPassword(bCryptPasswordEncoder.encode(userForm.getPassword()));
 
     userService.save(user);
 

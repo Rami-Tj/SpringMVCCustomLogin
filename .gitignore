@@ -15,5 +15,5 @@ target/
 WebContent/META-INF/MANIFEST.MF
 .settings/org.eclipse.jst.j2ee.ejb.annotations.xdoclet.prefs
 .settings/org.eclipse.wst.xsl.core.prefs
-.idea/**
-
+.idea/
+SpringMVC.iml
