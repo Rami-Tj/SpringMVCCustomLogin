@@ -3,10 +3,15 @@ package com.rusko.controllers;
 import com.rusko.domain.Role;
 import com.rusko.domain.User;
 import com.rusko.dto.UserDto;
+import com.rusko.dto.VerificationCodeDto;
 import com.rusko.repository.RoleRepository;
 import com.rusko.service.SecurityService;
 import com.rusko.service.UserService;
 import com.rusko.validator.UserValidator;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -16,11 +21,14 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @Controller
 @RequestMapping("/")
 public class MainController {
+  private static final Log logger = LogFactory.getLog(MainController.class);
 
   @Autowired
   private UserValidator userValidator;
@@ -36,6 +44,9 @@ public class MainController {
 
   @Autowired
   private SecurityService securityService;
+
+  @Autowired
+  private CacheManager cacheManager;
 
   @RequestMapping(value = {"/", "/home"}, method = RequestMethod.GET)
   public String index(Model m) {
@@ -72,13 +83,29 @@ public class MainController {
     User user = userForm.convert();
     final Role userRole = roleRepository.findByRole("USER");
     user.setRoles(Set.of(userRole));
-
     user.setPassword(bCryptPasswordEncoder.encode(userForm.getPassword()));
-
     userService.save(user);
 
     securityService.autoLogin(userForm.getUsername(), userForm.getPasswordConfirm());
-
     return "redirect:/home";
+  }
+
+  @RequestMapping(value = "/verification", method = RequestMethod.GET)
+  public String verification(Model model) {
+    if (cacheManager.getCacheNames() != null) {
+      for (String cacheName : cacheManager.getCacheNames()) {
+        Cache cache = cacheManager.getCache(cacheName);
+        for (Object object : cache.getKeys()) {
+          if (object instanceof String) {
+            String key = object.toString();
+            logger.info("cached user: " + cache.get(key));
+          }
+        }
+      }
+    }
+
+    model.addAttribute("message", "verification work!");
+    model.addAttribute("verificationCode", new VerificationCodeDto());
+    return "verification";
   }
 }

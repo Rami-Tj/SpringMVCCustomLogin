@@ -1,19 +1,21 @@
 package com.rusko.domain;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Long id;
   private String username;
   private String password;
-  @Transient
-  private String passwordConfirm;
+  private String verificationToken;
+  private Date verificationTokenCreationDate;
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
   private Set<Role> roles;
@@ -42,12 +44,20 @@ public class User {
     this.password = password;
   }
 
-  public String getPasswordConfirm() {
-    return passwordConfirm;
+  public String getVerificationToken() {
+    return verificationToken;
   }
 
-  public void setPasswordConfirm(String passwordConfirm) {
-    this.passwordConfirm = passwordConfirm;
+  public void setVerificationToken(String verificationToken) {
+    this.verificationToken = verificationToken;
+  }
+
+  public Date getVerificationTokenCreationDate() {
+    return verificationTokenCreationDate;
+  }
+
+  public void setVerificationTokenCreationDate(Date verificationTokenCreationDate) {
+    this.verificationTokenCreationDate = verificationTokenCreationDate;
   }
 
   public Set<Role> getRoles() {
