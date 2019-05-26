@@ -92,6 +92,7 @@ public class MainController {
 
   @RequestMapping(value = "/verification", method = RequestMethod.GET)
   public String verification(Model model) {
+
     if (cacheManager.getCacheNames() != null) {
       for (String cacheName : cacheManager.getCacheNames()) {
         Cache cache = cacheManager.getCache(cacheName);

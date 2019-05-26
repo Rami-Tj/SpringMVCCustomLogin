@@ -52,9 +52,9 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
       this.logger.debug("Authentication failed: password does not match stored value");
       throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
     } else {
-      User user = userRepository.findByUsername(authentication.getName());
+      User user = userRepository.findByUsername(userDetails.getUsername());
       if (!(user.getVerificationToken() != null && isVerificationTokenValid(user.getVerificationTokenCreationDate()))) {
-        throw new InvalidTokenException("Invalid token");
+        throw new InvalidTokenException(user.getUsername());
       }
     }
   }
@@ -99,13 +99,12 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
       cacheWasUsed = false;
 
       try {
-        user = this.retrieveUser(username, (UsernamePasswordAuthenticationToken)authentication);
+        user = this.retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
       } catch (UsernameNotFoundException var6) {
         this.logger.debug("User '" + username + "' not found");
         if (this.hideUserNotFoundExceptions) {
           throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
         }
-
         throw var6;
       }
 
@@ -114,18 +113,18 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     try {
       this.preAuthenticationChecks.check(user);
-      this.additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken)authentication);
+      this.additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
     } catch (AuthenticationException var7) {
       if (!cacheWasUsed) {
-        this.logger.debug("preAuth username: " + user.getUsername());
+        logger.debug("preAuth username: " + user.getUsername());
         this.userCache.putUserInCache(user);
         throw var7;
       }
 
       cacheWasUsed = false;
-      user = this.retrieveUser(username, (UsernamePasswordAuthenticationToken)authentication);
+      user = this.retrieveUser(username, (UsernamePasswordAuthenticationToken) authentication);
       this.preAuthenticationChecks.check(user);
-      this.additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken)authentication);
+      this.additionalAuthenticationChecks(user, (UsernamePasswordAuthenticationToken) authentication);
     }
 
     this.postAuthenticationChecks.check(user);
@@ -151,7 +150,7 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     UserDetails userDetails = this.userCache.getUserFromCache(authentication.getName());
     if (user != null) {
-      this.logger.debug("postAuth username: " + userDetails.getUsername());
+      logger.debug("postAuth username: " + userDetails.getUsername());
       this.userCache.removeUserFromCache(userDetails.getUsername());
     }
 
@@ -218,7 +217,7 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
 
     public void check(UserDetails user) {
       if (!user.isCredentialsNonExpired()) {
-        CustomAuthenticationProvider.this.logger.debug("User account credentials have expired");
+        logger.debug("User account credentials have expired");
         throw new CredentialsExpiredException(CustomAuthenticationProvider.this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.credentialsExpired", "User credentials have expired"));
       }
     }

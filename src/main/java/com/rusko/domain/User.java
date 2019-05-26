@@ -14,6 +14,8 @@ public class User implements Serializable {
   private Long id;
   private String username;
   private String password;
+  private String email;
+  private int verificationCode;
   private String verificationToken;
   private Date verificationTokenCreationDate;
   @ManyToMany(fetch = FetchType.EAGER)
@@ -44,6 +46,14 @@ public class User implements Serializable {
     this.password = password;
   }
 
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
   public String getVerificationToken() {
     return verificationToken;
   }
@@ -66,5 +76,13 @@ public class User implements Serializable {
 
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
+  }
+
+  public void setVerificationCode(int verificationCode) {
+    this.verificationCode = verificationCode;
+  }
+
+  public int getVerificationCode() {
+    return verificationCode;
   }
 }

@@ -14,12 +14,14 @@
 
     <import resource="appConfig-security.xml"/>
 
+    <import resource="appConfig-mailing.xml"/>
+
     <context:annotation-config/>
 
     <!-- Scans within the base package of the application for @Component classes to configure as beans -->
     <context:component-scan base-package="com.rusko.*"/>
 
-    <!-- Load properties files -->
+    <!-- Properties files -->
     <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>

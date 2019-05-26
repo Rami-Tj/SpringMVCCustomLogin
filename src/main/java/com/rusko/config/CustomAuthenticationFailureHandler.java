@@ -1,10 +1,14 @@
 package com.rusko.config;
 
 import com.rusko.config.exception.InvalidTokenException;
+import com.rusko.service.MailService;
+import com.rusko.service.UserService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -16,12 +20,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
   protected final Log logger = LogFactory.getLog(this.getClass());
   private String defaultFailureUrl;
   private boolean forwardToDestination = false;
   private boolean allowSessionCreation = true;
   private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+  @Autowired
+  private UserCache userCache;
+
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  private MailService mailService;
 
   public CustomAuthenticationFailureHandler() {
   }
@@ -40,7 +54,18 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
         this.logger.debug("Forwarding to " + this.defaultFailureUrl);
         request.getRequestDispatcher(this.defaultFailureUrl).forward(request, response);
       } else if (exception instanceof InvalidTokenException) {
+        String username = exception.getMessage();
+        if (username != null) {
+          UserPrincipal user = (UserPrincipal) this.userCache.getUserFromCache(username);
+          logger.info("cached user fetched from userCache: " + user.getUser().getEmail());
+          String email = user.getUser().getEmail();
+          if (email != null) {
+            int code = userService.generateRandomCode(user.getUser().getUsername());
+            mailService.sendVerificationCodeMail(email, code);
+          }
+        }
         String verificationUrl = "/verification";
+        this.logger.debug("Redirecting to " + verificationUrl);
         this.redirectStrategy.sendRedirect(request, response, verificationUrl);
       } else {
         this.logger.debug("Redirecting to " + this.defaultFailureUrl);
