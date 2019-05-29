@@ -8,4 +8,8 @@ public interface UserService {
   User findByUsername(String username);
 
   int generateRandomCode(String username);
+
+  User generateAccessToken(String username);
+
+  User saveRawPassword(String username, String presentedPassword);
 }

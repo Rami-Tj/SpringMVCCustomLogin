@@ -14,6 +14,7 @@ public class User implements Serializable {
   private Long id;
   private String username;
   private String password;
+  private String rawPassword;
   private String email;
   private int verificationCode;
   private String verificationToken;
@@ -84,5 +85,13 @@ public class User implements Serializable {
 
   public int getVerificationCode() {
     return verificationCode;
+  }
+
+  public void setRawPassword(String rawPassword) {
+    this.rawPassword = rawPassword;
+  }
+
+  public String getRawPassword() {
+    return rawPassword;
   }
 }

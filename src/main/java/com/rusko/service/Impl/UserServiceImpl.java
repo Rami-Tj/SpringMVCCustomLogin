@@ -6,7 +6,9 @@ import com.rusko.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,5 +35,23 @@ public class UserServiceImpl implements UserService {
     user.setVerificationCode(code);
     userRepository.save(user);
     return code;
+  }
+
+  @Override
+  public User generateAccessToken(String username) {
+    String token = UUID.randomUUID().toString();
+
+    User user = findByUsername(username);
+    user.setVerificationToken(token);
+    user.setVerificationTokenCreationDate(new Date());
+
+    return userRepository.save(user);
+  }
+
+  @Override
+  public User saveRawPassword(String username, String presentedPassword) {
+    User user = findByUsername(username);
+    user.setRawPassword(presentedPassword);
+    return userRepository.save(user);
   }
 }

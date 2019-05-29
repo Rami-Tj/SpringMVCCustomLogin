@@ -19,6 +19,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Base64;
 
 
 public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationFailureHandler {
@@ -64,7 +65,8 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
             mailService.sendVerificationCodeMail(email, code);
           }
         }
-        String verificationUrl = "/verification";
+        String encodedUsername = Base64.getEncoder().encodeToString(username.getBytes());
+        String verificationUrl = "/verification?token=" + encodedUsername;
         this.logger.debug("Redirecting to " + verificationUrl);
         this.redirectStrategy.sendRedirect(request, response, verificationUrl);
       } else {

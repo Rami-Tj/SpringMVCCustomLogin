@@ -55,6 +55,14 @@
             </div>
         </spring:bind>
 
+        <spring:bind path="email">
+            <div class="form-group ${status.error ? 'has-error' : ''}">
+                <form:input type="text" path="email" class="form-control"
+                            placeholder="Email"></form:input>
+                <form:errors path="email"></form:errors>
+            </div>
+        </spring:bind>
+
         <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
     </form:form>
 
